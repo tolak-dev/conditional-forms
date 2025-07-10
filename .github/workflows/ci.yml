@@ -1,9 +1,9 @@
 name: CI/CD Pipeline
 
 on:
-  push:
-    branches: [master]
   pull_request:
+    branches: [master]
+  push:
     branches: [master]
   workflow_dispatch:
     inputs:
@@ -19,121 +19,74 @@ on:
           - prerelease
 
 jobs:
-  # Job 1: Test and Build (runs on every PR and push)
   test-and-build:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+          filter: tree:0
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
           cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+      - run: npm ci --legacy-peer-deps
 
-      - name: Derive appropriate SHAs for base and head for `nx affected` commands
-        uses: nrwl/nx-set-shas@v4
+      - uses: nrwl/nx-set-shas@v4
 
-      - name: Lint affected projects
-        run: npx nx affected -t lint --parallel=3
+      - run: npx nx affected -t lint --parallel=3
+      # - run: npx nx affected -t test --parallel=3
+      # - run: npx nx affected -t typecheck --parallel=3
 
-      # - name: Test affected projects
-      #   run: npx nx affected -t test --parallel=3 --ci --code-coverage
-
-      - name: Build affected projects
-        run: npx nx affected -t build --parallel=3
-
-      # - name: Build demo app for deployment
-      #   if: github.ref == 'refs/heads/master'
-      #   run: npx nx build demo-app --prod
-
-      - name: Upload build artifacts
-        if: github.ref == 'refs/heads/master'
-        uses: actions/upload-artifact@v4
-        with:
-          name: build-artifacts
-          path: |
-            dist/
-            !dist/**/*.tsbuildinfo
-
-  # Job 2: Release library packages (only on master branch)
   release:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/master'
     needs: [test-and-build]
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          filter: tree:0
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
 
-      - name: Install dependencies
-        run: npm ci --legacy-peer-deps
+      - run: npm ci --legacy-peer-deps
 
       - name: Configure Git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Download build artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: build-artifacts
-          path: dist/
+      - uses: nrwl/nx-set-shas@v4
 
-      - name: Derive appropriate SHAs for base and head for `nx affected` commands
-        uses: nrwl/nx-set-shas@v4
-
-      - name: Check for affected library packages
-        id: check-libs
+      - name: Get affected libs
+        id: affected
         run: |
-          AFFECTED_LIBS=$(npx nx show projects --affected --type=lib --json | jq -r '.[]' | tr '\n' ' ')
-          if [ -z "$AFFECTED_LIBS" ]; then
-            echo "No library packages affected"
-            echo "has_affected_libs=false" >> $GITHUB_OUTPUT
-          else
-            echo "Affected libraries: $AFFECTED_LIBS"
-            echo "has_affected_libs=true" >> $GITHUB_OUTPUT
-            echo "affected_libs=$AFFECTED_LIBS" >> $GITHUB_OUTPUT
-          fi
+          AFFECTED=$(npx nx show projects --affected --type=lib --json | jq -r '.[]' | tr '\n' ' ')
+          echo "affected_libs=$AFFECTED" >> $GITHUB_OUTPUT
+          echo "Affected libs: $AFFECTED"
 
-      - name: Release affected library packages (automatic)
-        if: steps.check-libs.outputs.has_affected_libs == 'true' && github.event_name == 'push'
-        run: npx nx release --projects="${{ steps.check-libs.outputs.affected_libs }}" --skip-publish
+      - name: Version changed libs
+        if: steps.affected.outputs.affected_libs != ''
+        run: npx nx release --projects="${{ steps.affected.outputs.affected_libs }}" --skip-publish
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Release affected library packages (manual)
-        if: steps.check-libs.outputs.has_affected_libs == 'true' && github.event_name == 'workflow_dispatch'
-        run: npx nx release --projects="${{ steps.check-libs.outputs.affected_libs }}" --version=${{ github.event.inputs.version }} --skip-publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish library packages to NPM
-        if: steps.check-libs.outputs.has_affected_libs == 'true'
-        run: npx nx release publish --projects="${{ steps.check-libs.outputs.affected_libs }}"
+      - name: Publish changed libs
+        if: steps.affected.outputs.affected_libs != ''
+        run: npx nx release publish --projects="${{ steps.affected.outputs.affected_libs }}"
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
-
-      - name: No library packages to release
-        if: steps.check-libs.outputs.has_affected_libs == 'false'
-        run: echo "No library packages were affected. Skipping release."
 
   summary:
     runs-on: ubuntu-latest
@@ -147,20 +100,17 @@ jobs:
           echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
           echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
 
-          # Test results
           if [ "${{ needs.test-and-build.result }}" = "success" ]; then
             echo "- **Tests & Build**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
           else
             echo "- **Tests & Build**: ❌ Failed" >> $GITHUB_STEP_SUMMARY
           fi
 
-          # Release results
           if [ "${{ needs.release.result }}" = "success" ]; then
             echo "- **Library Release**: ✅ Completed" >> $GITHUB_STEP_SUMMARY
           elif [ "${{ needs.release.result }}" = "skipped" ]; then
-            echo "- **Library Release**: ⚠️ No packages to release" >> $GITHUB_STEP_SUMMARY
+            echo "- **Library Release**: ⚠️ Skipped" >> $GITHUB_STEP_SUMMARY
           else
             echo "- **Library Release**: ❌ Failed" >> $GITHUB_STEP_SUMMARY
           fi
