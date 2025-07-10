@@ -33,7 +33,7 @@ jobs:
           node-version: 20
           cache: 'npm'
 
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
 
       - uses: nrwl/nx-set-shas@v4
 
@@ -59,7 +59,7 @@ jobs:
           cache: 'npm'
           registry-url: 'https://registry.npmjs.org'
 
-      - run: npm ci
+      - run: npm ci --legacy-peer-deps
 
       - name: Configure Git
         run: |
