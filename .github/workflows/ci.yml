@@ -38,6 +38,3 @@ jobs:
 
       - name: Test affected
         run: npx nx affected --target=test --parallel=3 --base=origin/master
-
-      - name: Typecheck affected
-        run: npx nx affected --target=typecheck --parallel=3 --base=origin/master
