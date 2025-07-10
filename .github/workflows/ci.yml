@@ -1,116 +1,99 @@
-name: CI/CD Pipeline
+name: CI & Release Pipeline
 
 on:
-  pull_request:
-    branches: [master]
   push:
     branches: [master]
+
+  pull_request:
+    branches: [master]
+
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version bump type'
-        required: true
-        default: 'patch'
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
-          - prerelease
+        description: 'Optional version (patch, minor, major, or 1.2.3)'
+        required: false
 
 jobs:
-  test-and-build:
+  # ----------------------------
+  # 1️⃣ CI Job - Always runs first
+  # ----------------------------
+  ci:
+    name: Lint, Test, Typecheck
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           filter: tree:0
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: 'npm'
 
-      - run: npm ci --legacy-peer-deps
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
 
-      - uses: nrwl/nx-set-shas@v4
+      - name: Derive SHAs for affected
+        uses: nrwl/nx-set-shas@v4
 
-      - run: npx nx affected -t lint --parallel=3
-      # - run: npx nx affected -t test --parallel=3
-      # - run: npx nx affected -t typecheck --parallel=3
+      - name: Lint affected
+        run: npx nx affected -t lint --parallel=3
 
+      - name: Test affected
+        run: npx nx affected -t test --parallel=3
+
+      - name: Typecheck affected
+        run: npx nx affected -t typecheck --parallel=3
+
+  # ----------------------------
+  # 2️⃣ Release + Publish Job - Only if CI passes
+  # ----------------------------
   release:
+    name: Version & Publish to npm
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-    needs: [test-and-build]
+    needs: ci
+    if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout code
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           filter: tree:0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
           node-version: 20
+          registry-url: https://registry.npmjs.org/
           cache: 'npm'
-          registry-url: 'https://registry.npmjs.org'
 
-      - run: npm ci --legacy-peer-deps
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
 
-      - name: Configure Git
+      - name: Version and generate changelogs
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
+            npx nx release --skip-publish --yes --version ${{ github.event.inputs.version }}
+          else
+            npx nx release --skip-publish --yes
+          fi
+
+      - name: Push versioned changes and tags
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+          git push && git push --follow-tags
 
-      - uses: nrwl/nx-set-shas@v4
-
-      - name: Get affected libs
-        id: affected
-        run: |
-          AFFECTED=$(npx nx show projects --affected --type=lib --json | jq -r '.[]' | tr '\n' ' ')
-          echo "affected_libs=$AFFECTED" >> $GITHUB_OUTPUT
-          echo "Affected libs: $AFFECTED"
-
-      - name: Version changed libs
-        if: steps.affected.outputs.affected_libs != ''
-        run: npx nx release --projects="${{ steps.affected.outputs.affected_libs }}" --skip-publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish changed libs
-        if: steps.affected.outputs.affected_libs != ''
-        run: npx nx release publish --projects="${{ steps.affected.outputs.affected_libs }}"
+      - name: Publish to npm
+        run: npx nx release publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
-
-  summary:
-    runs-on: ubuntu-latest
-    needs: [test-and-build, release]
-    if: always() && github.ref == 'refs/heads/master'
-
-    steps:
-      - name: Generate summary
-        run: |
-          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
-          echo "- **Trigger**: ${{ github.event_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Branch**: ${{ github.ref_name }}" >> $GITHUB_STEP_SUMMARY
-          echo "- **Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
-
-          if [ "${{ needs.test-and-build.result }}" = "success" ]; then
-            echo "- **Tests & Build**: ✅ Passed" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- **Tests & Build**: ❌ Failed" >> $GITHUB_STEP_SUMMARY
-          fi
-
-          if [ "${{ needs.release.result }}" = "success" ]; then
-            echo "- **Library Release**: ✅ Completed" >> $GITHUB_STEP_SUMMARY
-          elif [ "${{ needs.release.result }}" = "skipped" ]; then
-            echo "- **Library Release**: ⚠️ Skipped" >> $GITHUB_STEP_SUMMARY
-          else
-            echo "- **Library Release**: ❌ Failed" >> $GITHUB_STEP_SUMMARY
-          fi
