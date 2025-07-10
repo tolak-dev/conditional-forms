@@ -72,7 +72,7 @@
       "conventionalCommits": true
     },
     "changelog": {
-      "workspaceChangelog": {
+      "projectChangelogs": {
         "createRelease": "github"
       }
     }

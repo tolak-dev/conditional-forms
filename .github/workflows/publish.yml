@@ -1,0 +1,63 @@
+name: publish
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish'
+        required: false
+        default: 'patch'
+  release:
+    types: [published]
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          filter: tree:0
+          fetch-depth: 0
+
+      # This enables task distribution via Nx Cloud
+      # Run this command as early as possible, before dependencies are installed
+      # Learn more at https://nx.dev/ci/reference/nx-cloud-cli#npx-nxcloud-startcirun
+      # Uncomment this line to enable task distribution
+      # - run: npx nx-cloud start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="build"
+
+      # Cache node_modules
+      - name: Use Node.js v20
+        # This action sets up Node.js for use in actions by adding it to the PATH
+        # and caching node_modules for faster builds.
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: 'https://registry.npmjs.org/'
+          cache: 'npm'
+
+      - name: Use Node.js v20
+        run: npm ci
+
+      - name: Apply updated to packages and publish
+        run: |
+          # Get the version from the input or use the default
+          VERSION=${{ github.event.inputs.version || 'patch' }}
+
+          # Update package versions and changelog
+          npx nx run-many --target=version --all --version=$VERSION
+
+          # Publish packages to npm
+          npx nx run-many --target=publish --all
+
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
