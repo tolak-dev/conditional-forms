@@ -1,5 +1,5 @@
 {
-  "name": "@dfr/conditional-forms",
+  "name": "conditional-forms",
   "version": "0.5.4",
   "type": "module",
   "main": "./dist/index.js",
