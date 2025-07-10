@@ -1,0 +1,31 @@
+{
+  "name": "conditional-forms",
+  "projectType": "library",
+  "root": "packages/conditional-forms",
+  "sourceRoot": "packages/conditional-forms/src",
+  "targets": {
+    "build": {
+      "executor": "@nx/vite:build"
+    },
+    "test": {
+      "executor": "@nx/vite:test",
+      "outputs": [],
+      "options": {
+        "passWithNoTests": true
+      }
+    },
+    "lint": {
+      "executor": "@nx/eslint:lint",
+      "options": {
+        "lintFilePatterns": ["packages/conditional-forms/**/*.{ts,tsx}"]
+      }
+    },
+    "typecheck": {
+      "executor": "@nx/js:tsc",
+      "options": {
+        "tsConfig": "packages/conditional-forms/tsconfig.lib.json"
+      }
+    }
+  },
+  "tags": []
+}
