@@ -5,6 +5,9 @@
   "references": [
     {
       "path": "./packages/conditional-forms"
+    },
+    {
+      "path": "./packages/theme"
     }
   ]
 }

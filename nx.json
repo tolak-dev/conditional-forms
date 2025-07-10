@@ -67,8 +67,9 @@
     }
   },
   "release": {
-    "projects": ["*", "!@conditional-forms/source"],
+    "projects": ["*", "theme", "!@conditional-forms/source"],
     "version": {
+      "preVersionCommand": "npx nx run-many -t build",
       "conventionalCommits": true
     },
     "changelog": {

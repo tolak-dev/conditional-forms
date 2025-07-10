@@ -81,9 +81,9 @@ jobs:
       - name: Version and generate changelogs
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
-            npx nx release --skip-publish --yes --version ${{ github.event.inputs.version }}
+            npx nx release --version ${{ github.event.inputs.version }} --yes
           else
-            npx nx release --skip-publish --yes
+            npx nx release --yes
           fi
 
       - name: Push versioned changes and tags
