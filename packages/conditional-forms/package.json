@@ -1,6 +1,6 @@
 {
   "name": "@dfr/conditional-forms",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.js",
