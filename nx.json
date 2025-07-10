@@ -70,6 +70,11 @@
     "projects": ["conditional-forms"],
     "version": {
       "conventionalCommits": true
+    },
+    "changelog": {
+      "workspaceChangelog": {
+        "createRelease": "github"
+      }
     }
   },
   "generators": {
