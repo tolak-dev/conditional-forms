@@ -67,7 +67,7 @@
     }
   },
   "release": {
-    "projects": ["conditional-forms"],
+    "projects": ["*", "!@conditional-forms/source"],
     "version": {
       "conventionalCommits": true
     },
