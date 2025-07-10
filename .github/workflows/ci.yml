@@ -58,7 +58,7 @@ jobs:
     needs: ci
     if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
     permissions:
-      contents: read
+      contents: write # Changed from 'read' to 'write' for pushing tags
       id-token: write
 
     steps:
@@ -67,6 +67,7 @@ jobs:
         with:
           fetch-depth: 0
           filter: tree:0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -81,10 +82,11 @@ jobs:
       - name: Version and generate changelogs
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
-            npx nx release --version ${{ github.event.inputs.version }} --yes --skip-project-build
+            npx nx release version ${{ github.event.inputs.version }} --yes
           else
-            npx nx release --yes --skip-project-build
+            npx nx release version --yes
           fi
+
       - name: Push versioned changes and tags
         run: |
           git config user.name "github-actions[bot]"
@@ -92,7 +94,7 @@ jobs:
           git push && git push --follow-tags
 
       - name: Publish to npm
-        run: npx nx release publish
+        run: npx nx release publish --yes
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
