@@ -1,4 +1,4 @@
-name: CI & Release Pipeline
+name: CI & Release
 
 on:
   push:
@@ -14,9 +14,6 @@ on:
         required: false
 
 jobs:
-  # ----------------------------
-  # 1️⃣ CI Job - Always runs first
-  # ----------------------------
   ci:
     name: Lint, Test, Typecheck
     runs-on: ubuntu-latest
@@ -47,16 +44,13 @@ jobs:
       - name: Typecheck affected
         run: npx nx affected -t typecheck --parallel=3
 
-  # ----------------------------
-  # 2️⃣ Release + Publish Job - Only if CI passes
-  # ----------------------------
   release:
     name: Version & Publish to npm
     runs-on: ubuntu-latest
     needs: ci
     if: github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch'
     permissions:
-      contents: write # Changed from 'read' to 'write' for pushing tags
+      contents: write
       id-token: write
 
     steps:
@@ -80,6 +74,9 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+      - name: Configure npm
+        run: |
+          echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_TOKEN }}" > ~/.npmrc
       - name: Version and generate changelogs for affected projects
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
@@ -87,11 +84,6 @@ jobs:
           else
             npx nx release version --git-commit --git-tag --git-push
           fi
-        # - name: Push changes
-        #   run: |
-        #     git add .
-        #     git commit -m "chore(release): version bump [skip ci]"
-        #     git push origin master --tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
