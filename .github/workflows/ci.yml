@@ -34,13 +34,13 @@ jobs:
         uses: nrwl/nx-set-shas@v4
 
       - name: Lint affected
-        run: npx nx affected -t lint --parallel=4
+        run: npx nx affected -t lint --parallel=3 --skip-nx-cache
 
       - name: Test affected
-        run: npx nx affected -t test --parallel=3
+        run: npx nx affected -t test --parallel=3 --skip-nx-cache
 
       - name: Typecheck affected
-        run: npx nx affected -t typecheck --parallel=3
+        run: npx nx affected -t typecheck --parallel=3 --skip-nx-cache
 
   # Job for releasing and publishing after merge to master
   release-and-publish:
