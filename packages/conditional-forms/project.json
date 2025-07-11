@@ -21,9 +21,9 @@
       }
     },
     "typecheck": {
-      "executor": "@nx/js:tsc",
+      "executor": "nx:run-commands",
       "options": {
-        "tsConfig": "packages/conditional-forms/tsconfig.lib.json"
+        "command": "tsc --noEmit -p packages/conditional-forms/tsconfig.lib.json"
       }
     }
   },
