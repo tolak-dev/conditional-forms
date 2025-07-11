@@ -39,14 +39,15 @@ jobs:
 
       - name: Derive SHAs for affected
         uses: nrwl/nx-set-shas@v4
+        with:
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lint affected
         run: npx nx affected -t lint --parallel=3
       - name: Test affected
         run: npx nx affected -t test --parallel=3
-
-      # - name: Typecheck affected
-      #   run: npx nx affected -t typecheck --parallel=3
+      - name: Typecheck affected
+        run: npx nx affected -t typecheck --parallel=3
 
   # ----------------------------
   # 2️⃣ Release + Publish Job - Only if CI passes
