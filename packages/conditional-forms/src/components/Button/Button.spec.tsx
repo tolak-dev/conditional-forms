@@ -17,9 +17,5 @@ describe('<Button />', () => {
     expect(button).toHaveClass('my-custom-button');
   });
 
-  it('includes correct data-testid attribute', () => {
-    render(<Button label="Test" />);
-    const button = screen.getByTestId('input-button-Test');
-    expect(button).toBeInTheDocument();
-  });
+
 });

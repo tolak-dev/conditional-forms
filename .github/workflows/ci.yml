@@ -1,4 +1,4 @@
-name: CI & Release Pipeline
+name: CI & Release
 
 on:
   push:
@@ -74,12 +74,15 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Version and generate changelogs for affected projects
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
             npx nx release version ${{ github.event.inputs.version }} --git-commit --git-tag --git-push
+            echo "Version set to ${{ github.event.inputs.version }}"
           else
             npx nx release version --git-commit --git-tag --git-push
+            echo "No version input provided, using default versioning"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
