@@ -43,7 +43,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build project
-        run: npx nx run ${{ github.event.inputs.project }}:build
+        run: npx nx run ${{ github.event.inputs.project }}:build --skip-nx-cache
 
       - name: Publish to npm
         run: npx nx release publish --projects ${{ github.event.inputs.project }} --yes
