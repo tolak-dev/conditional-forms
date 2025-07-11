@@ -12,7 +12,7 @@ jobs:
   # Job for running linting and testing on Pull Requests
   pr-checks:
     name: PR Checks (Lint & Test Affected)
-    if: github.event_name == 'pull_request' # Only run this job for pull_request events
+    if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15 # Set a timeout for the job
 
@@ -29,13 +29,7 @@ jobs:
           node-version: '20' # Specify your Node.js version
 
       - name: Install Dependencies
-        run: npm ci # Use npm ci for clean installs in CI environments
-
-      - name: Cache Nx
-        uses: nx/actions/cache@v4
-        with:
-          # Specify the path where Nx caches its computation results
-          path: .nx/cache
+        run: npm ci --legacy-peer-deps # Install dependencies, using legacy peer deps if necessary
 
       - name: Determine Affected Projects
         id: affected-projects # Store the list of affected projects in an output variable
@@ -60,7 +54,7 @@ jobs:
   # Job for releasing and publishing after merge to master
   release-and-publish:
     name: Release & Publish (Affected Projects)
-    if: github.event_name == 'push' && github.ref == 'refs/heads/master' # Only run this job for pushes to master
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
     runs-on: ubuntu-latest
     timeout-minutes: 20 # Set a timeout for the job
     needs: [pr-checks] # Ensure PR checks pass before attempting to release (optional, but recommended)
@@ -82,12 +76,7 @@ jobs:
           registry-url: '[https://registry.npmjs.org](https://registry.npmjs.org)'
 
       - name: Install Dependencies
-        run: npm ci
-
-      - name: Cache Nx
-        uses: nx/actions/cache@v4
-        with:
-          path: .nx/cache
+        run: npm ci --legacy-peer-deps # Install dependencies, using legacy peer deps if necessary
 
       - name: Configure Git User
         run: |
