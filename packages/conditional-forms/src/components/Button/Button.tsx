@@ -1,11 +1,12 @@
 import React from 'react';
 
-export interface FormButtonProps
+export interface ButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   label: string;
 }
 
-export const FormButton: React.FC<FormButtonProps> = ({ label, ...props }) => {
-  return <button {...props}>{label} ttsadsd</button>;
+export const Button: React.FC<ButtonProps> = ({ label, ...props }) => {
+  return <button data-testid={`input-button-${label}`}
+ {...props}>{label} </button>;
 
 };
