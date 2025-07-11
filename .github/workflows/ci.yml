@@ -73,15 +73,16 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Run Nx Release
-        env:
-          # NPM_TOKEN is required for publishing to npm
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # GITHUB_TOKEN is used by nx release to push tags and commits
-          # It's automatically provided by GitHub Actions, but explicitly passing it can be safer.
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
             npx nx release version ${{ github.event.inputs.version }} --git-commit --git-tag --git-push
           else
             npx nx release version --git-commit --git-tag --git-push
           fi
+        env:
+          # NPM_TOKEN is required for publishing to npm
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # GITHUB_TOKEN is used by nx release to push tags and commits
+          # It's automatically provided by GitHub Actions, but explicitly passing it can be safer.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
