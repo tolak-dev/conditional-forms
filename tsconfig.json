@@ -5,6 +5,12 @@
   "references": [
     {
       "path": "./packages/conditional-forms"
+    },
+    {
+      "path": "./packages/conditional-forms/packages/conditional-form-theme"
+    },
+    {
+      "path": "./packages/conditional-form-theme"
     }
   ]
 }

@@ -48,7 +48,8 @@
     "vitest": "^3.0.0"
   },
   "workspaces": [
-    "packages/*"
+    "packages/*",
+    "packages/conditional-forms/packages/*"
   ],
   "dependencies": {
     "react": "19.0.0",
