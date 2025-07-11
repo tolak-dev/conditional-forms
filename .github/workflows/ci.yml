@@ -81,3 +81,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           npx nx release --verbose --git-remote=origin --publish
+        # run: |
+        #   if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
+        #     npx nx release version ${{ github.event.inputs.version }} --git-commit --git-tag --git-push
+        #   else
+        #     npx nx release version --git-commit --git-tag --git-push
+        #   fi
