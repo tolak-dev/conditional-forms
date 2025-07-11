@@ -31,25 +31,16 @@ jobs:
       - name: Install Dependencies
         run: npm ci --legacy-peer-deps # Install dependencies, using legacy peer deps if necessary
 
-      - name: Determine Affected Projects
-        id: affected-projects # Store the list of affected projects in an output variable
-        run: |
-          # Use nx affected to find projects that changed relative to the master branch
-          # and store them as a space-separated string.
-          # This is useful if you want to iterate over affected projects later.
-          AFFECTED_PROJECTS=$(npx nx affected --base=origin/master --head=HEAD --plain --target=lint)
-          echo "Affected projects: $AFFECTED_PROJECTS"
-          echo "affected_projects=$AFFECTED_PROJECTS" >> $GITHUB_OUTPUT
+      - name: Derive SHAs for affected
+        uses: nrwl/nx-set-shas@v4
 
-      - name: Run Affected Lint
-        # Only run if there are affected projects
-        if: steps.affected-projects.outputs.affected_projects != ''
-        run: npx nx affected --target=lint --base=origin/master --head=HEAD --parallel # Run linting for affected projects in parallel
+      - name: Lint affected
+        run: npx nx affected -t lint --parallel=3
+      - name: Test affected
+        run: npx nx affected -t test --parallel=3
 
-      - name: Run Affected Tests
-        # Only run if there are affected projects
-        if: steps.affected-projects.outputs.affected_projects != ''
-        run: npx nx affected --target=test --base=origin/master --head=HEAD --parallel --ci --code-coverage # Run tests for affected projects, enable CI mode and code coverage
+      - name: Typecheck affected
+        run: npx nx affected -t typecheck --parallel=3
 
   # Job for releasing and publishing after merge to master
   release-and-publish:
