@@ -39,6 +39,9 @@ jobs:
 
       - name: Derive SHAs for affected
         uses: nrwl/nx-set-shas@v4
+        with:
+          gh-token: ${{ secrets.GITHUB_TOKEN }}
+          main-branch-name: master
 
       - name: Lint affected
         run: npx nx affected -t lint --parallel=3

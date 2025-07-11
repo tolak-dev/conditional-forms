@@ -67,6 +67,7 @@
     }
   },
   "release": {
+    "projectsRelationship": "independent",
     "projects": ["*", "!@conditional-forms/source"],
     "version": {
       "conventionalCommits": true
