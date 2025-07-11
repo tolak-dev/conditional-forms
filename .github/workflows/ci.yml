@@ -76,30 +76,14 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
-
       - name: Configure git
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-
-      - name: Version and generate changelogs
+      - name: Version and generate changelogs for affected projects
         run: |
-          CHANGED=$(npx nx show projects --affected --base=origin/master --head=HEAD)
-          if [[ -z "$CHANGED" ]]; then
-            echo "No affected projects. Skipping release."
-            exit 0
-          fi
-
-          for project in $CHANGED; do
-            EXISTING_TAG=$(git tag -l "$project@*")
-            if [[ -z "$EXISTING_TAG" ]]; then
-              echo "No previous release tag found for $project. Running first release..."
-              npx nx release version --projects=$project --first-release --git-commit --git-tag --git-push
-            else
-              echo "Running regular versioning for $project"
-              npx nx release version --projects=$project --git-commit --git-tag --git-push
-            fi
-          done
+          npx nx release version --yes
+          npx nx release changelog --yes
       - name: Publish to npm
         run: npx nx release publish --yes
         env:
