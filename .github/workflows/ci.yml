@@ -63,8 +63,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20' # Specify your Node.js version
-          # Configure npm for publishing
-          registry-url: '[https://registry.npmjs.org](https://registry.npmjs.org)'
 
       - name: Install Dependencies
         run: npm ci --legacy-peer-deps # Install dependencies, using legacy peer deps if necessary
