@@ -6,6 +6,5 @@ export interface FormButtonProps
 }
 
 export const FormButton: React.FC<FormButtonProps> = ({ label, ...props }) => {
-  return <button {...props}>{label} ttsadsd</button>;
-
+  return <button {...props}>{label}  testaaaaaaaa</button>;
 };
