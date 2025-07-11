@@ -68,8 +68,9 @@
   },
   "release": {
     "projectsRelationship": "independent",
-    "projects": ["*", "!@conditional-forms/source"],
+    "projects": ["*", "conditional-form-theme", "!@conditional-forms/source"],
     "version": {
+      "preVersionCommand": "npx nx run-many -t build",
       "conventionalCommits": true
     },
     "changelog": {
