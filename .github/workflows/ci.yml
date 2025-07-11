@@ -82,8 +82,19 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
       - name: Version and generate changelogs for affected projects
         run: |
-          npx nx release version --yes
-          npx nx release changelog --yes
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
+            npx nx release version ${{ github.event.inputs.version }} --git-commit --git-tag --git-push
+          else
+            npx nx release version --git-commit --git-tag --git-push
+          fi
+        # - name: Push changes
+        #   run: |
+        #     git add .
+        #     git commit -m "chore(release): version bump [skip ci]"
+        #     git push origin master --tags
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Publish to npm
         run: npx nx release publish --yes
         env:
