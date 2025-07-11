@@ -46,7 +46,7 @@ jobs:
         run: npx nx run ${{ github.event.inputs.project }}:build --skip-nx-cache
 
       - name: Publish to npm
-        run: npx nx release publish --projects ${{ github.event.inputs.project }} --yes
+        run: npx nx release publish --projects ${{ github.event.inputs.project }} --yes --skip-nx-cache
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
