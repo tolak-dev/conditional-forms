@@ -5,7 +5,11 @@
   "sourceRoot": "packages/conditional-forms/src",
   "targets": {
     "build": {
-      "executor": "@nx/vite:build"
+      "executor": "@nx/vite:build",
+      "options": {
+        "outputPath": "dist/packages/conditional-forms",
+        "configFile": "packages/conditional-forms/vite.config.ts"
+      }
     },
     "test": {
       "executor": "@nx/vite:test",
