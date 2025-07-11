@@ -1,0 +1,50 @@
+name: Version PR (Nx release)
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Version to release (patch, minor, major, or 1.2.3)"
+        required: true
+
+jobs:
+  version:
+    name: Create release branch and open PR
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Configure Git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Create version bump
+        run: |
+          git checkout -b release/v${{ github.event.inputs.version }}
+          npx nx release version ${{ github.event.inputs.version }} --git-commit --git-tag
+          git push origin release/v${{ github.event.inputs.version }}
+
+      - name: Open PR into master
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: master
+          branch: release/v${{ github.event.inputs.version }}
+          title: "Release v${{ github.event.inputs.version }}"
+          body: "This PR contains the version bump and changelogs for release."
