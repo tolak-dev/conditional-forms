@@ -2,16 +2,16 @@
   "name": "conditional-forms",
   "version": "0.16.0",
   "type": "module",
-  "main": "dist/index.js",
   "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "dist/packages/conditional-forms/index.js",
+  "types": "dist/packages/conditional-forms/index.d.ts",
   "exports": {
     "./package.json": "./package.json",
     ".": {
       "development": "./src/index.ts",
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
+      "types": "./dist/packages/conditional-forms/index.d.ts",
+      "import": "./dist/packages/conditional-forms/index.js",
+      "default": "./dist/packages/conditional-forms/index.js"
     }
   },
   "files": [
