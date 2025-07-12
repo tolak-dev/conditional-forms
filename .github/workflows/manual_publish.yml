@@ -49,19 +49,20 @@ jobs:
             npx nx release version --git-commit --git-tag --git-push
           fi
         env:
-          # NPM_TOKEN is required for publishing to npm
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # GITHUB_TOKEN is used by nx release to push tags and commits
-          # It's automatically provided by GitHub Actions, but explicitly passing it can be safer.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build package
+      - name: Build package with version number
+        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.version != '' }}
+        run: npx nx build ${{ github.event.inputs.project }} --version ${{ github.event.inputs.version }} --skip-nx-cache --parallel=3
+      - name: Build package without version number
+        if: ${{ github.event_name != 'workflow_dispatch' || github.event.inputs.version == '' }}
         run: npx nx affected -t build --skip-nx-cache --parallel=3
 
       - name: Publish to npm
         run: npx nx release publish --yes --skip-nx-cache
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true # Optional: enables NPM provenance signing
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for publishing with nx release
+          NPM_CONFIG_PROVENANCE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}

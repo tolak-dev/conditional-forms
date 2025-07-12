@@ -13,22 +13,21 @@ jobs:
   pr-checks:
     name: PR Checks (Lint & Test Affected)
     runs-on: ubuntu-latest
-    timeout-minutes: 15 # Set a timeout for the job
+    timeout-minutes: 15
 
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          # Fetch all history for Nx affected commands to correctly determine changes
           fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Specify your Node.js version
+          node-version: '20'
 
       - name: Install Dependencies
-        run: npm ci --legacy-peer-deps # Install dependencies, using legacy peer deps if necessary
+        run: npm ci --legacy-peer-deps
 
       - name: Derive SHAs for affected
         uses: nrwl/nx-set-shas@v4
@@ -47,7 +46,6 @@ jobs:
 
       # - run: npx nx affected -t lint test build
 
-  # Job for releasing and publishing after merge to master
   release-and-publish:
     name: Release
     if: github.ref == 'refs/heads/master'
@@ -62,17 +60,13 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
         with:
-          # IMPORTANT: Fetch all history for nx release to correctly determine versions and generate changelogs
           fetch-depth: 0
-          # IMPORTANT: Ensure the GITHUB_TOKEN has write access to push back version bumps and tags
-          filter: tree:0
-          # Provide a token with write access to push back version bumps and tags
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Specify your Node.js version
+          node-version: '20'
           registry-url: https://registry.npmjs.org/
           cache: 'npm'
 
@@ -92,10 +86,7 @@ jobs:
             npx nx release version --git-commit --git-tag --git-push
           fi
         env:
-          # NPM_TOKEN is required for publishing to npm
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          # GITHUB_TOKEN is used by nx release to push tags and commits
-          # It's automatically provided by GitHub Actions, but explicitly passing it can be safer.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build package
@@ -105,6 +96,6 @@ jobs:
         run: npx nx release publish --yes --skip-nx-cache
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true # Optional: enables NPM provenance signing
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for publishing with nx release
+          NPM_CONFIG_PROVENANCE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
