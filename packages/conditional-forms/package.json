@@ -1,6 +1,6 @@
 {
   "name": "conditional-forms",
-  "version": "0.16.0",
+  "version": "0.17.0",
   "type": "module",
   "module": "./dist/index.js",
   "main": "dist/packages/conditional-forms/index.js",
