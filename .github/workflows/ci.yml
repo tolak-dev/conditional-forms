@@ -88,3 +88,29 @@ jobs:
           # GITHUB_TOKEN is used by nx release to push tags and commits
           # It's automatically provided by GitHub Actions, but explicitly passing it can be safer.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to npm
+        run: npx nx release publish --yes --skip-nx-cache
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true # Optional: enables NPM provenance signing
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for publishing with nx release
+          # This token is used to authenticate with npm and push the package
+          # It should have write access to the repository and npm registry
+          # Ensure this token is stored securely in GitHub Secrets as NPM_TOKEN
+          # and GITHUB_TOKEN is automatically provided by GitHub Actions
+          # NPM_CONFIG_PROVENANCE is optional but recommended for provenance signing
+          # This ensures that the package is signed with provenance metadata
+          # which can help with security and traceability in npm packages
+          # The --yes flag skips confirmation prompts, allowing the action to run non-interactively
+          # The --skip-nx-cache flag ensures that the build is not cached, which is useful for CI environments
+          # This is important for ensuring that the latest changes are always built and published
+          # The nx release publish command handles the actual publishing to npm
+          # It uses the configured npm registry and the provided authentication token
+          # Ensure that the NPM_TOKEN is set in your repository secrets
+          # This token should have the necessary permissions to publish packages to npm
+          # The nx release publish command will automatically determine the package to publish
+          # based on the current working directory and the configured package.json
+          # If you have multiple packages, you can specify the package to publish using the --projects flag
+          # For example: npx nx release publish --projects my-package --yes --skip-nx-cache
+          # This will publish only the specified package, allowing for selective publishing in a monorepo

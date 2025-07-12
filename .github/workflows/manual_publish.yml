@@ -1,4 +1,4 @@
-name: Manual Release & Publish
+name: Publish
 
 on:
   workflow_dispatch:
@@ -9,8 +9,9 @@ on:
       version:
         description: 'Version bump (patch, minor, major, or 1.2.3)'
         required: false
-        default: patch
-
+        default: ''
+  release:
+    types: [published]
 jobs:
   release-and-publish:
     runs-on: ubuntu-latest
@@ -30,7 +31,6 @@ jobs:
         with:
           node-version: 20
           registry-url: https://registry.npmjs.org/
-          cache: npm
 
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
@@ -46,7 +46,13 @@ jobs:
         run: npx nx run ${{ github.event.inputs.project }}:build --skip-nx-cache
 
       - name: Publish to npm
-        run: npx nx release publish --projects ${{ github.event.inputs.project }} --yes --skip-nx-cache
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
+            npx nx release publish --projects ${{ github.event.inputs.project }} --version ${{ github.event.inputs.version }} --yes --skip-nx-cache
+          else
+            npx nx release publish --projects ${{ github.event.inputs.project }} --yes --skip-nx-cache
+          fi
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
