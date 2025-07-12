@@ -1,3 +1,4 @@
-export * from './components/Button';
+import Button from './components/Button/Button';
+export Button from './components/Button';
 export { ConditionalFormBuilder } from './ConditionalFormBuilder';
 export type { ConditionalFormBuilderProps } from './types/formSchema';
