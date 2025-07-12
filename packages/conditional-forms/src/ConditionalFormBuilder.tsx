@@ -6,7 +6,7 @@ import type { ConditionalFormBuilderProps, Field } from './types/formSchema';
 import FieldRenderer from './components/fields/FieldRenderer';
 import { evaluateConditions } from './utils/conditionUtils';
 
-const ConditionalFormBuilder: React.FC<ConditionalFormBuilderProps> = ({
+export const ConditionalFormBuilder: React.FC<ConditionalFormBuilderProps> = ({
   schema,
   formMethods,
   defaultValues,
@@ -173,6 +173,3 @@ const ConditionalFormBuilder: React.FC<ConditionalFormBuilderProps> = ({
     </Grid>
   );
 };
-
-
-export default ConditionalFormBuilder;
