@@ -7,7 +7,7 @@
     "build": {
       "executor": "@nx/vite:build",
       "options": {
-        "outputPath": "dist/packages/conditional-forms",
+        "outputPath": "packages/conditional-forms",
         "configFile": "packages/conditional-forms/vite.config.ts"
       }
     },
