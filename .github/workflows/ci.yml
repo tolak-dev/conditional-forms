@@ -26,7 +26,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20' # Specify your Node.js version
-          registry-url: 'https://registry.npmjs.org/'
 
       - name: Install Dependencies
         run: npm ci --legacy-peer-deps # Install dependencies, using legacy peer deps if necessary
@@ -62,6 +61,8 @@ jobs:
         with:
           # IMPORTANT: Fetch all history for nx release to correctly determine versions and generate changelogs
           fetch-depth: 0
+          # IMPORTANT: Ensure the GITHUB_TOKEN has write access to push back version bumps and tags
+          filter: tree:0
           # Provide a token with write access to push back version bumps and tags
           token: ${{ secrets.GITHUB_TOKEN }}
 
@@ -69,12 +70,13 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '20' # Specify your Node.js version
-
+          registry-url: https://registry.npmjs.org/
+          cache: 'npm'
       - name: Install Dependencies
         run: npm ci --legacy-peer-deps
       - name: Configure Git User
         run: |
-          git config user.name "GitHub Actions Bot"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
       - name: Run Nx Release
@@ -99,3 +101,4 @@ jobs:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true # Optional: enables NPM provenance signing
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for publishing with nx release
+          NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
