@@ -15,7 +15,7 @@
     }
   },
   "files": [
-    "dist/packages/conditional-forms",
+    "dist/packages/conditional-forms/*",
     "!**/*.tsbuildinfo"
   ],
   "publishConfig": {
