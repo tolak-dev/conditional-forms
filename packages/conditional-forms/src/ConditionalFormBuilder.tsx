@@ -173,5 +173,3 @@ export const ConditionalFormBuilder: React.FC<ConditionalFormBuilderProps> = ({
     </Grid>
   );
 };
-
-export default ConditionalFormBuilder;
