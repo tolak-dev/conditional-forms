@@ -61,12 +61,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          filter: tree:0
           token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20'
+          node-version: 20
           registry-url: https://registry.npmjs.org/
           cache: 'npm'
 
@@ -88,6 +89,10 @@ jobs:
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Print Environment Info
+        run: npx nx report
+        shell: bash
 
       - name: Build package
         run: npx nx run-many -t build --all --skip-nx-cache
