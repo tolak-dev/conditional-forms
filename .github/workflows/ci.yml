@@ -82,7 +82,7 @@ jobs:
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
             npx nx release version ${{ github.event.inputs.version }} --git-commit --git-tag --git-push
           else
-            npx nx release version --first-release --git-commit --git-tag --git-push
+            npx nx release version --git-commit --git-tag --git-push
           fi
         env:
           # NPM_TOKEN is required for publishing to npm
@@ -94,7 +94,7 @@ jobs:
         run: npx nx affected -t build --skip-nx-cache
 
       - name: Publish to npm
-        run: npx nx release publish --first-release --yes --skip-nx-cache
+        run: npx nx release publish --yes --skip-nx-cache
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true # Optional: enables NPM provenance signing
