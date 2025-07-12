@@ -36,27 +36,32 @@ jobs:
       - name: Install dependencies
         run: npm ci --legacy-peer-deps
 
-      - name: Configure Git
+      - name: Configure Git User
         run: |
-          git config user.name "GitHub Actions Bot"
+          git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Build package
-        run: npx nx run ${{ github.event.inputs.project }}:build --skip-nx-cache
-
-      - name: Version and generate changelogs for affected projects
+      - name: Run Nx Release
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
             npx nx release version ${{ github.event.inputs.version }} --git-commit --git-tag --git-push
-            echo "Version set to ${{ github.event.inputs.version }}"
           else
             npx nx release version --git-commit --git-tag --git-push
-            echo "No version input provided, using default versioning"
           fi
         env:
+          # NPM_TOKEN is required for publishing to npm
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          # GITHUB_TOKEN is used by nx release to push tags and commits
+          # It's automatically provided by GitHub Actions, but explicitly passing it can be safer.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Build package
+        run: npx nx affected -t build --skip-nx-cache --parallel=3
+
       - name: Publish to npm
-        run: npx nx release publish --yes
+        run: npx nx release publish --yes --skip-nx-cache
         env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true # Optional: enables NPM provenance signing
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # Required for publishing with nx release
           NPM_TOKEN: ${{ secrets.NPM_TOKEN }}
