@@ -2,7 +2,7 @@
   "name": "conditional-forms",
   "version": "0.19.0",
   "type": "module",
-  "module": "./dist/index.js",
+  "module": "dist/packages/conditional-forms/index.js",
   "main": "dist/packages/conditional-forms/index.js",
   "types": "dist/packages/conditional-forms/index.d.ts",
   "exports": {

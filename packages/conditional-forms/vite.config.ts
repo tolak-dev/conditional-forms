@@ -21,7 +21,7 @@ export default defineConfig(() => ({
   // Configuration for building your library.
   // See: https://vitejs.dev/guide/build.html#library-mode
   build: {
-    outDir: './dist',
+    outDir: path.resolve(__dirname, '../../dist/packages/conditional-forms'),
     emptyOutDir: true,
     reportCompressedSize: true,
     commonjsOptions: {
