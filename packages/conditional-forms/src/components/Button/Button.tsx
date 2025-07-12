@@ -7,5 +7,5 @@ export interface ButtonProps
 
 export const Button: React.FC<ButtonProps> = ({ label, ...props }) => {
   return <button data-testid={`input-button-${label}`}
- {...props}>{label} TEST  test aaa sadsa</button>;
+ {...props}>{label} TEST  test aaa asdsad</button>;
 };
