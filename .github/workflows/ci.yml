@@ -90,7 +90,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build package
-        run: npx nx affected -t build --skip-nx-cache --parallel=3
+        run: npx nx run-many -t build --all --skip-nx-cache
 
       - name: Publish to npm
         run: npx nx release publish --yes --skip-nx-cache
