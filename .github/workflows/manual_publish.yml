@@ -45,13 +45,11 @@ jobs:
       - name: Build package
         run: npx nx run ${{ github.event.inputs.project }}:build --skip-nx-cache
 
-      - name: Publish to npm
+      - name: Release and Publish
         run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
-            npx nx release publish --projects ${{ github.event.inputs.project }} --version ${{ github.event.inputs.version }} --yes --skip-nx-cache
-          else
-            npx nx release publish --projects ${{ github.event.inputs.project }} --yes --skip-nx-cache
-          fi
+          VERSION=${{ github.event.inputs.version || github.ref_name}}
+          npx nx release version --specifier $VERSION 
+          npx nx release publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           NPM_CONFIG_PROVENANCE: true
