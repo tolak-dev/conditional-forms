@@ -1,0 +1,14 @@
+# Ignore tests
+**/*.spec.ts
+**/*.spec.tsx
+**/*.test.ts
+**/*.test.tsx
+
+# Ignore test utils, mocks, snapshots, etc.
+**/__tests__/
+**/__mocks__/
+
+# Ignore other dev stuff
+.vitest
+coverage
+src/setupTests.ts

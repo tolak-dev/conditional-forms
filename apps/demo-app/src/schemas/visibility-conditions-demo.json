@@ -1,0 +1,730 @@
+{
+  "id": "conditional-forms-showcase",
+  "title": "Conditional Forms Showcase",
+  "description": "Comprehensive demonstration of all conditional logic capabilities. Test different values to see fields appear/disappear and change states dynamically.",
+  "ui": {
+    "formVariant": "elevation",
+    "backgroundColor": "background.default",
+    "formElevation": 2,
+    "formPadding": "32px",
+    "titleVariant": "h4",
+    "titleFontWeight": "bold",
+    "titleColor": "primary.main",
+    "titleAlign": "center",
+    "descriptionVariant": "body1",
+    "descriptionColor": "text.secondary",
+    "descriptionAlign": "center",
+    "buttonGroupJustifyContent": "center",
+    "submitButtonVariant": "contained",
+    "submitButtonColor": "primary",
+    "submitButtonSize": "large",
+    "resetButtonVariant": "outlined",
+    "resetButtonColor": "secondary",
+    "resetButtonSize": "large"
+  },
+  "groups": [
+    {
+      "name": "basic_visibility",
+      "label": "Basic Conditional Visibility",
+      "description": "Fields that show/hide based on exact value matches. Try selecting different user types to see different fields appear.",
+      "ui": {
+        "border": true,
+        "borderRadius": "12px",
+        "padding": "20px",
+        "marginBottom": "24px",
+        "titleVariant": "h5",
+        "titleComponent": "h2",
+        "totalColumns": 12,
+        "spacing": 3
+      }
+    },
+    {
+      "name": "numerical_comparisons",
+      "label": "Numerical Comparisons",
+      "description": "Fields that appear based on numerical thresholds. Enter different ages and experience levels to see conditional fields.",
+      "ui": {
+        "border": true,
+        "borderRadius": "12px",
+        "padding": "20px",
+        "marginBottom": "24px",
+        "titleVariant": "h5",
+        "titleComponent": "h2",
+        "totalColumns": 12,
+        "spacing": 3
+      }
+    },
+    {
+      "name": "string_conditions",
+      "label": "String-Based Conditions",
+      "description": "Fields that react to text content. Try typing 'admin' in keywords or 'spam'/'bot' in comments to see conditional responses.",
+      "ui": {
+        "border": true,
+        "borderRadius": "12px",
+        "padding": "20px",
+        "marginBottom": "24px",
+        "titleVariant": "h5",
+        "titleComponent": "h2",
+        "totalColumns": 12,
+        "spacing": 3
+      }
+    },
+    {
+      "name": "complex_logical",
+      "label": "Complex Logical Operations",
+      "description": "Demonstrates AND, OR, and NOT logic combinations. Check different combinations of checkboxes to see complex conditional behavior.",
+      "ui": {
+        "border": true,
+        "borderRadius": "12px",
+        "padding": "20px",
+        "marginBottom": "24px",
+        "titleVariant": "h5",
+        "titleComponent": "h2",
+        "totalColumns": 12,
+        "spacing": 3
+      }
+    },
+    {
+      "name": "field_state_management",
+      "label": "Field State Management",
+      "description": "Shows dynamic field states like read-only and conditional validation. Toggle checkboxes to see fields lock/unlock.",
+      "ui": {
+        "border": true,
+        "borderRadius": "12px",
+        "padding": "20px",
+        "marginBottom": "24px",
+        "titleVariant": "h5",
+        "titleComponent": "h2",
+        "totalColumns": 12,
+        "spacing": 3
+      }
+    }
+  ],
+  "fields": [
+    {
+      "name": "user_type",
+      "type": "select",
+      "label": "User Type (Exact Match Demo)",
+      "description": "Select different user types to see conditional fields appear. Try 'Premium User' or 'Administrator'",
+      "placeholder": "Select user type",
+      "options": [
+        { "label": "Standard User", "value": "standard" },
+        { "label": "Premium User", "value": "premium" },
+        { "label": "Administrator", "value": "admin" },
+        { "label": "Guest", "value": "guest" }
+      ],
+      "validation": {
+        "required": { "value": true, "message": "Please select a user type" }
+      },
+      "group": "basic_visibility",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 6, "md": 4, "lg": 4, "xl": 4 }
+      }
+    },
+    {
+      "name": "premium_feature",
+      "type": "text",
+      "label": "Premium Feature Access",
+      "description": "This field only appears when 'Premium User' is selected",
+      "placeholder": "Premium-only features available here",
+      "validation": {
+        "minLength": { "value": 3, "message": "Minimum 3 characters required" }
+      },
+      "conditions": [
+        {
+          "operator": "AND",
+          "rules": [
+            {
+              "field": "user_type",
+              "operator": "equals",
+              "value": "premium"
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "basic_visibility",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 6, "md": 4, "lg": 4, "xl": 4 }
+      }
+    },
+    {
+      "name": "non_guest_field",
+      "type": "text",
+      "label": "Non-Guest Field (Inverse Match)",
+      "description": "Hidden when 'Guest' is selected, visible for all other user types",
+      "placeholder": "Only registered users can access this",
+      "validation": {
+        "pattern": {
+          "value": "^[a-zA-Z0-9\\s]+$",
+          "message": "Only alphanumeric characters allowed"
+        }
+      },
+      "conditions": [
+        {
+          "operator": "AND",
+          "rules": [
+            {
+              "field": "user_type",
+              "operator": "notEquals",
+              "value": "guest"
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "basic_visibility",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 6, "md": 4, "lg": 4, "xl": 4 }
+      }
+    },
+    {
+      "name": "privileged_access",
+      "type": "text",
+      "label": "Privileged Access (OR Logic)",
+      "description": "Visible for Premium Users OR Administrators (demonstrates OR logic)",
+      "placeholder": "Special access for premium users and admins",
+      "validation": {
+        "maxLength": {
+          "value": 100,
+          "message": "Maximum 100 characters allowed"
+        }
+      },
+      "conditions": [
+        {
+          "operator": "OR",
+          "rules": [
+            {
+              "field": "user_type",
+              "operator": "equals",
+              "value": "premium"
+            },
+            {
+              "field": "user_type",
+              "operator": "equals",
+              "value": "admin"
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "basic_visibility",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 12, "md": 12, "lg": 12, "xl": 12 }
+      }
+    },
+    {
+      "name": "age",
+      "type": "number",
+      "label": "Age (Numerical Threshold)",
+      "description": "Enter age to unlock age-based features. Try values above 18 and 65",
+      "placeholder": "Enter your age",
+      "validation": {
+        "min": { "value": 18, "message": "Must be at least 18" },
+        "max": { "value": 65, "message": "Please enter a valid age" }
+      },
+      "group": "numerical_comparisons",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 6, "md": 4, "lg": 4, "xl": 4 }
+      }
+    },
+    {
+      "name": "adult_content",
+      "type": "checkbox",
+      "label": "Adult Content Available",
+      "description": "Only appears when age > 18",
+      "conditions": [
+        {
+          "operator": "AND",
+          "rules": [
+            {
+              "field": "age",
+              "operator": "greaterThan",
+              "value": 18
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "numerical_comparisons",
+      "ui": {
+        "color": "primary",
+        "colSpan": { "xs": 12, "sm": 6, "md": 4, "lg": 4, "xl": 4 }
+      }
+    },
+    {
+      "name": "senior_discount",
+      "type": "checkbox",
+      "label": "Senior Discount Eligible",
+      "description": "Appears when age > 65",
+      "conditions": [
+        {
+          "operator": "AND",
+          "rules": [
+            {
+              "field": "age",
+              "operator": "greaterThan",
+              "value": 65
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "numerical_comparisons",
+      "ui": {
+        "color": "secondary",
+        "colSpan": { "xs": 12, "sm": 6, "md": 4, "lg": 4, "xl": 4 }
+      }
+    },
+    {
+      "name": "experience_level",
+      "type": "number",
+      "label": "Experience Level (1-10)",
+      "description": "Rate your experience. Values < 4 show beginner help, > 8 show expert features",
+      "placeholder": "Rate your experience 1-10",
+      "validation": {
+        "required": {
+          "value": true,
+          "message": "Experience level is required"
+        },
+        "min": { "value": 1, "message": "Minimum 1" },
+        "max": { "value": 10, "message": "Maximum 10" }
+      },
+      "group": "numerical_comparisons",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 6, "md": 6, "lg": 6, "xl": 6 }
+      }
+    },
+    {
+      "name": "beginner_help",
+      "type": "text",
+      "label": "Beginner Resources",
+      "description": "Shows when experience level < 4",
+      "placeholder": "Here are some helpful resources for beginners...",
+      "defaultValue": "Welcome! Check out our beginner tutorials and guides.",
+      "readOnly": true,
+      "conditions": [
+        {
+          "operator": "AND",
+          "rules": [
+            {
+              "field": "experience_level",
+              "operator": "lessThan",
+              "value": 4
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "numerical_comparisons",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 6, "md": 6, "lg": 6, "xl": 6 }
+      }
+    },
+    {
+      "name": "expert_features",
+      "type": "text",
+      "label": "Expert Features",
+      "description": "Unlocked when experience level > 8",
+      "placeholder": "Advanced features for experts",
+      "validation": {
+        "required": {
+          "value": true,
+          "message": "Expert features must be specified"
+        },
+        "minLength": {
+          "value": 10,
+          "message": "Expert input requires at least 10 characters"
+        }
+      },
+      "conditions": [
+        {
+          "operator": "AND",
+          "rules": [
+            {
+              "field": "experience_level",
+              "operator": "greaterThan",
+              "value": 8
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "numerical_comparisons",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 12, "md": 12, "lg": 12, "xl": 12 }
+      }
+    },
+    {
+      "name": "keyword_field",
+      "type": "text",
+      "label": "Search Keywords",
+      "description": "Type 'admin' to unlock admin panel, or 'secret' to see hidden features",
+      "placeholder": "Enter keywords (try 'admin' or 'secret')",
+      "validation": {
+        "pattern": {
+          "value": "^[a-zA-Z0-9\\s]+$",
+          "message": "Only alphanumeric characters and spaces allowed"
+        }
+      },
+      "group": "string_conditions",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 6, "md": 6, "lg": 6, "xl": 6 }
+      }
+    },
+    {
+      "name": "admin_panel",
+      "type": "text",
+      "label": "Admin Panel Access",
+      "description": "Appears when keywords contain 'admin'",
+      "placeholder": "Special admin features unlocked",
+      "validation": {
+        "required": {
+          "value": true,
+          "message": "Admin access details required"
+        }
+      },
+      "conditions": [
+        {
+          "operator": "AND",
+          "rules": [
+            {
+              "field": "keyword_field",
+              "operator": "contains",
+              "value": "admin"
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "string_conditions",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 6, "md": 6, "lg": 6, "xl": 6 }
+      }
+    },
+    {
+      "name": "secret_feature",
+      "type": "text",
+      "label": "🔒 Secret Feature",
+      "description": "Appears when keywords contain 'secret'",
+      "placeholder": "You found the secret feature!",
+      "defaultValue": "Congratulations! You discovered the hidden feature.",
+      "conditions": [
+        {
+          "operator": "AND",
+          "rules": [
+            {
+              "field": "keyword_field",
+              "operator": "contains",
+              "value": "secret"
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "string_conditions",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 12, "md": 12, "lg": 12, "xl": 12 }
+      }
+    },
+    {
+      "name": "public_comment",
+      "type": "multiline-text",
+      "label": "Public Comment",
+      "description": "Type 'spam' or 'bot' to trigger content moderation warning",
+      "placeholder": "Enter your comment (avoid 'spam' or 'bot')",
+      "validation": {
+        "maxLength": {
+          "value": 500,
+          "message": "Maximum 500 characters allowed"
+        }
+      },
+      "group": "string_conditions",
+      "ui": {
+        "variant": "outlined",
+        "rows": 3,
+        "colSpan": { "xs": 12, "sm": 12, "md": 12, "lg": 12, "xl": 12 }
+      }
+    },
+    {
+      "name": "comment_warning",
+      "type": "text",
+      "label": "⚠️ Comment flagged for review",
+      "description": "Warning appears when comment contains 'spam' or 'bot'",
+      "defaultValue": "This comment contains potentially problematic content and will be reviewed.",
+      "readOnly": true,
+      "conditions": [
+        {
+          "operator": "OR",
+          "rules": [
+            {
+              "field": "public_comment",
+              "operator": "contains",
+              "value": "spam"
+            },
+            {
+              "field": "public_comment",
+              "operator": "contains",
+              "value": "bot"
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "string_conditions",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 12, "md": 12, "lg": 12, "xl": 12 }
+      }
+    },
+    {
+      "name": "enable_advanced",
+      "type": "checkbox",
+      "label": "Enable Advanced Features",
+      "description": "Check this to enable advanced logic demonstrations",
+      "defaultValue": false,
+      "group": "complex_logical",
+      "ui": {
+        "color": "primary",
+        "colSpan": { "xs": 12, "sm": 6, "md": 4, "lg": 4, "xl": 4 }
+      }
+    },
+    {
+      "name": "has_experience",
+      "type": "checkbox",
+      "label": "I have relevant experience",
+      "description": "Part of the complex AND logic demonstration",
+      "defaultValue": false,
+      "group": "complex_logical",
+      "ui": {
+        "color": "primary",
+        "colSpan": { "xs": 12, "sm": 6, "md": 4, "lg": 4, "xl": 4 }
+      }
+    },
+    {
+      "name": "agree_terms",
+      "type": "checkbox",
+      "label": "I agree to advanced terms",
+      "description": "Required for complex AND logic demonstration",
+      "defaultValue": false,
+      "group": "complex_logical",
+      "ui": {
+        "color": "primary",
+        "colSpan": { "xs": 12, "sm": 6, "md": 4, "lg": 4, "xl": 4 }
+      }
+    },
+    {
+      "name": "complex_and_field",
+      "type": "text",
+      "label": "Advanced AND Logic",
+      "description": "Visible only when ALL three checkboxes above are checked",
+      "placeholder": "All conditions must be met to see this field",
+      "validation": {
+        "required": {
+          "value": true,
+          "message": "This field is required when visible"
+        },
+        "minLength": { "value": 5, "message": "Minimum 5 characters required" }
+      },
+      "conditions": [
+        {
+          "operator": "AND",
+          "rules": [
+            {
+              "field": "enable_advanced",
+              "operator": "equals",
+              "value": true
+            },
+            {
+              "field": "has_experience",
+              "operator": "equals",
+              "value": true
+            },
+            {
+              "field": "agree_terms",
+              "operator": "equals",
+              "value": true
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "complex_logical",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 12, "md": 6, "lg": 6, "xl": 6 }
+      }
+    },
+    {
+      "name": "complex_not_field",
+      "type": "text",
+      "label": "NOT Logic Demo",
+      "description": "Hidden when BOTH 'enable_advanced' AND 'has_experience' are checked",
+      "placeholder": "This field uses NOT logic",
+      "validation": {
+        "pattern": {
+          "value": "^[a-zA-Z\\s]+$",
+          "message": "Only letters and spaces allowed"
+        }
+      },
+      "conditions": [
+        {
+          "operator": "NOT",
+          "rules": [
+            {
+              "field": "enable_advanced",
+              "operator": "equals",
+              "value": true
+            },
+            {
+              "field": "has_experience",
+              "operator": "equals",
+              "value": true
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "complex_logical",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 12, "md": 6, "lg": 6, "xl": 6 }
+      }
+    },
+    {
+      "name": "readonly_toggle",
+      "type": "checkbox",
+      "label": "Make fields read-only",
+      "description": "Check this to make the field below read-only",
+      "defaultValue": false,
+      "group": "field_state_management",
+      "ui": {
+        "color": "primary",
+        "colSpan": { "xs": 12, "sm": 6, "md": 6, "lg": 6, "xl": 6 }
+      }
+    },
+    {
+      "name": "dynamic_readonly_field",
+      "type": "text",
+      "label": "Dynamic Read-Only Field",
+      "description": "Becomes read-only when checkbox above is checked",
+      "placeholder": "Type here, then check the box above to lock this field",
+      "defaultValue": "This field can be locked",
+      "validation": {
+        "minLength": {
+          "value": 3,
+          "message": "Minimum 3 characters when editable"
+        }
+      },
+      "conditions": [
+        {
+          "operator": "AND",
+          "rules": [
+            {
+              "field": "readonly_toggle",
+              "operator": "equals",
+              "value": true
+            }
+          ],
+          "effect": "readOnly"
+        }
+      ],
+      "group": "field_state_management",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 6, "md": 6, "lg": 6, "xl": 6 }
+      }
+    },
+    {
+      "name": "conditional_required",
+      "type": "text",
+      "label": "Conditionally Required Field",
+      "description": "This field becomes required when user type is 'Administrator'",
+      "placeholder": "Required for administrators only",
+      "validation": {
+        "minLength": {
+          "value": 5,
+          "message": "Minimum 5 characters for admin fields"
+        }
+      },
+      "conditions": [
+        {
+          "operator": "AND",
+          "rules": [
+            {
+              "field": "user_type",
+              "operator": "equals",
+              "value": "admin"
+            }
+          ],
+          "effect": "visibility"
+        }
+      ],
+      "group": "field_state_management",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 12, "md": 12, "lg": 12, "xl": 12 }
+      }
+    },
+    {
+      "name": "email_validation",
+      "type": "text",
+      "label": "Email Address",
+      "description": "Demonstrates email validation with custom pattern",
+      "placeholder": "Enter a valid email address",
+      "validation": {
+        "pattern": {
+          "value": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$",
+          "message": "Please enter a valid email address"
+        }
+      },
+      "group": "field_state_management",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 6, "md": 6, "lg": 6, "xl": 6 }
+      }
+    },
+    {
+      "name": "phone_validation",
+      "type": "text",
+      "label": "Phone Number",
+      "description": "Demonstrates phone number validation (format: +1234567890)",
+      "placeholder": "Enter phone number (e.g., +1234567890)",
+      "validation": {
+        "pattern": {
+          "value": "^\\+?[1-9]\\d{1,14}$",
+          "message": "Please enter a valid phone number"
+        }
+      },
+      "group": "field_state_management",
+      "ui": {
+        "variant": "outlined",
+        "colSpan": { "xs": 12, "sm": 6, "md": 6, "lg": 6, "xl": 6 }
+      }
+    },
+    {
+      "name": "summary_field",
+      "type": "multiline-text",
+      "label": "Form Summary",
+      "description": "Read-only field showing current form state",
+      "placeholder": "This field summarizes your selections...",
+      "readOnly": true,
+      "group": "field_state_management",
+      "ui": {
+        "variant": "outlined",
+        "rows": 4,
+        "colSpan": { "xs": 12, "sm": 12, "md": 12, "lg": 12, "xl": 12 }
+      }
+    }
+  ]
+}

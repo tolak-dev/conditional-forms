@@ -1,0 +1,10 @@
+{
+  "name": "@conditional-forms/demo-app-e2e",
+  "version": "0.0.3",
+  "private": true,
+  "nx": {
+    "implicitDependencies": [
+      "@conditional-forms/demo-app"
+    ]
+  }
+}

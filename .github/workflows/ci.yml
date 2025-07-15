@@ -1,0 +1,111 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+permissions:
+  actions: read
+  contents: read
+  id-token: write
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # This enables task distribution via Nx Cloud
+      # Run this command as early as possible, before dependencies are installed
+      # Learn more at https://nx.dev/ci/reference/nx-cloud-cli#npx-nxcloud-startcirun
+      # Uncomment this line to enable task distribution
+      # - run: npx nx start-ci-run --distribute-on="3 linux-medium-js" --stop-agents-after="build"
+
+      # Cache node_modules
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - run: npm ci --legacy-peer-deps
+
+      - name: Derive SHAs for affected
+        uses: nrwl/nx-set-shas@v4
+
+      # Prepend any command with "nx-cloud record --" to record its logs to Nx Cloud
+      # - run: npx nx-cloud record -- echo Hello World
+      # As your workspace grows, you can change this to use Nx Affected to run only tasks affected by the changes in this PR/commit. Learn more: https://nx.dev/ci/features/affected
+      - name: Lint Affected Projects
+        run: npx nx affected -t lint --parallel=3 --skip-nx-cache
+
+      - name: Test Affected Projects
+        run: npx nx affected -t test --parallel=3 --skip-nx-cache
+
+      - name: Typecheck affected
+        run: npx nx affected -t typecheck --parallel=3 --skip-nx-cache
+
+      - name: Build Affected Projects
+        run: npx nx affected -t build --parallel=3 --skip-nx-cache
+
+      # Nx Cloud recommends fixes for failures to help you get CI green faster. Learn more: https://nx.dev/ci/features/self-healing-ci
+      - run: npx nx fix-ci
+        if: always()
+  release:
+    name: Release & Publish
+    runs-on: ubuntu-latest
+    # This job only runs if the CI job passes and it's a push to the main branch.
+    permissions:
+      contents: write
+      id-token: write
+
+    needs: ci
+
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          # The `nx release` command will commit changes (e.g., version bumps, changelogs)
+          # so it needs write permissions.
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          registry-url: https://registry.npmjs.org/
+
+      - name: Install Dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Configure Git User
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Print Environment Info
+        run: npx nx report
+        shell: bash
+
+      - name: Build package
+        run: npx nx run-many -t build --all --skip-nx-cache
+
+      - name: Run Nx Release
+        run: npx nx release version --first-release --git-commit --git-tag --git-push
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Run Nx Publish
+        run: npx nx release publish --first-release --yes --skip-nx-cache
+        env:
+          # This token is used by `npm publish` which `nx release` orchestrates.
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+          # NX_CLOUD_ACCESS_TOKEN: ${{ secrets.NX_CLOUD_ACCESS_TOKEN }}
