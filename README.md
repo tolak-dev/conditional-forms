@@ -4,7 +4,7 @@ This is a demo monorepo project using [Nx](https://nx.dev) to demonstrate develo
 
 It provides a dynamic form component for React using React Hook Form. The form is built from a JSON schema and supports conditional rendering, grouped fields, and validation.
 
-**Live Demo:** [View the app on GitHub Pages](https://tolak-dev.github.io/react-forms/)
+**Live Demo:** [View the app on GitHub Pages](https://tolak-dev.github.io/conditional-forms/)
 
 ## Features
 
