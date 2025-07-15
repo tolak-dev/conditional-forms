@@ -98,12 +98,12 @@ jobs:
         run: npx nx run-many -t build --all --skip-nx-cache
 
       - name: Run Nx Release
-        run: npx nx release version --first-release --git-commit --git-tag --git-push
+        run: npx nx release version --git-commit --git-tag --git-push
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
 
       - name: Run Nx Publish
-        run: npx nx release publish --first-release --yes --skip-nx-cache
+        run: npx nx release publish  --yes --skip-nx-cache
         env:
           # This token is used by `npm publish` which `nx release` orchestrates.
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
