@@ -2,8 +2,8 @@ name: Deploy Demo App to GitHub Pages
 
 on:
   push:
-    tags:
-      - '@conditional-forms/demo-app@*'
+    branches:
+      - master
   workflow_dispatch:
 
 permissions:
